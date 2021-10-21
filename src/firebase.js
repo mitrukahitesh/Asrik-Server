@@ -1,10 +1,13 @@
 const admin = require("firebase-admin");
+const schedule = require("node-schedule");
 
 const serviceAccount = require(__dirname + "/google_services.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
+const THREE_DAY_MILLIS = 3 * 24 * 60 * 60 * 1000;
 
 const options = {
   priority: "high",
@@ -72,6 +75,7 @@ const sendNotificationToUsersForRequestVerified = async function (req, res) {
       seekerToken.data().TOKEN,
       req.body
     );
+    scheduleCooldown(req.body);
   } catch (err) {
     throw err;
   }
@@ -117,6 +121,20 @@ const sendMessageToUsersForRequestVerified = async function (
   }
 };
 
+const scheduleCooldown = function (body) {
+  const emergency = body.nameValuePairs.EMERGENCY;
+  const id = body.nameValuePairs.REQUEST_ID;
+  if (!emergency) return;
+  else {
+    const scheduleDate = new Date(new Date().getTime() + THREE_DAY_MILLIS);
+    schedule.scheduleJob(scheduleDate, () => {
+      firestore.collection("REQUESTS").doc(id).update({
+        emergency: false,
+      });
+    });
+  }
+};
+
 // Notify user for request rejection
 const sendNotificationForRequestRejection = async function (req, res) {
   try {
@@ -148,6 +166,7 @@ const sendRejectionMessage = async function (token, body) {
   }
 };
 
+// Notify blood camps
 const sendBloodCampNotification = async function (req, res) {
   try {
     const pin = req.params.code;
