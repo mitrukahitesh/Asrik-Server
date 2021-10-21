@@ -6,6 +6,7 @@ const getPincode = function (req, res) {
     .get(`${URL}${req.params.code}`)
     .then((data) => {
       res.setHeader("Content-Type", "application/json");
+      if (!data.data[0].PostOffice) throw Error("Not Found");
       res.json({
         status: 200,
         message: "Success",
