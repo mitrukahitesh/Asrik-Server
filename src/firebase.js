@@ -22,7 +22,12 @@ const sendNotificationToAdmin = async function (req, res) {
     const pin = req.params.code;
     const body = req.body;
     let snapshot = await firestore.collection("ADMINS").doc(pin).get();
-    const adminUid = snapshot.data().ADMIN;
+    let adminUid;
+    if (snapshot.exists) adminUid = snapshot.data().ADMIN;
+    else {
+      snapshot = await firestore.collection("ADMINS").doc("400001").get();
+      adminUid = snapshot.data().ADMIN;
+    }
     snapshot = await firestore.collection("TOKENS").doc(adminUid).get();
     const token = snapshot.data().TOKEN;
     await sendMessageToAdmin(token, body);
