@@ -17,6 +17,7 @@ app.get("/pincode/:code", (req, res) => {
 });
 
 app.post("/new_request/:code", async (req, res) => {
+  res.setHeader("content-type", "text/plain");
   try {
     await sendNotificationToAdmin(req, res);
     res.status(200);
@@ -29,6 +30,7 @@ app.post("/new_request/:code", async (req, res) => {
 });
 
 app.post("/request_verified/:code/:seeker", async (req, res) => {
+  res.setHeader("content-type", "text/plain");
   try {
     await sendNotificationToUsersForRequestVerified(req, res);
     res.status(200);
@@ -41,6 +43,7 @@ app.post("/request_verified/:code/:seeker", async (req, res) => {
 });
 
 app.post("/request_rejected/:seeker", async (req, res) => {
+  res.setHeader("content-type", "text/plain");
   try {
     await sendNotificationForRequestRejection(req, res);
     res.status(200);
@@ -53,6 +56,7 @@ app.post("/request_rejected/:seeker", async (req, res) => {
 });
 
 app.post("/blood_camp/:code/:id", async (req, res) => {
+  res.setHeader("content-type", "text/plain");
   try {
     await sendBloodCampNotification(req, res);
     res.status(200);
