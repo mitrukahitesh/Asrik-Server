@@ -206,12 +206,14 @@ const sendBloodCampMessage = async function (tokens, body) {
         body: `${body.nameValuePairs.ADDRESS}\n${body.nameValuePairs.DATE}\n${body.nameValuePairs.START_TIME} - ${body.nameValuePairs.END_TIME}`,
       },
     };
+    console.log(payload);
     if (tokens.length == 0) return;
     const response = await admin
       .messaging()
       .sendToDevice(tokens, payload, options);
     return response;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };
