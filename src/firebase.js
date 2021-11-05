@@ -216,9 +216,43 @@ const sendBloodCampMessage = async function (tokens, body) {
   }
 };
 
+// Notify user for new message
+const sendNewMessageNotification = async function (req, res) {
+  try {
+    const uid = req.params.receiver;
+    let snapshot = await firestore.collection("TOKENS").doc(uid).get();
+    const token = snapshot.data().TOKEN;
+    console.log(req.body);
+    await sendNewMessageMessage(token, req.body);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const sendNewMessageMessage = async function (token, body) {
+  try {
+    const payload = {
+      data: {
+        newMessage: "true",
+        title: body.nameValuePairs.NAME,
+        body: body.nameValuePairs.MESSAGE,
+        number: body.nameValuePairs.NUMBER,
+        chat_id: body.nameValuePairs.CHAT_ID,
+      },
+    };
+    const response = await admin
+      .messaging()
+      .sendToDevice(token, payload, options);
+    return response;
+  } catch (err) {
+    throw err;
+  }
+};
+
 module.exports.sendNotificationToAdmin = sendNotificationToAdmin;
 module.exports.sendNotificationToUsersForRequestVerified =
   sendNotificationToUsersForRequestVerified;
 module.exports.sendNotificationForRequestRejection =
   sendNotificationForRequestRejection;
 module.exports.sendBloodCampNotification = sendBloodCampNotification;
+module.exports.sendNewMessageNotification = sendNewMessageNotification;
