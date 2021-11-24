@@ -273,7 +273,6 @@ const sendEmail = function (email, subject, message) {
       pass: process.env.PASSWORD,
     },
   });
-  console.log(process.env.PASSWORD);
 
   const mailOptions = {
     from: "asrikcontact@gmail.com",
