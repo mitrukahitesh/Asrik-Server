@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const schedule = require("node-schedule");
+const nodemailer = require("nodemailer");
 
 const serviceAccount = require(__dirname + "/google_services.json");
 
@@ -80,6 +81,13 @@ const sendNotificationToUsersForRequestVerified = async function (req, res) {
       seekerToken.data().TOKEN,
       req.body
     );
+    const seekerInfo = await firestore.collection("USERS").doc(seeker).get();
+    const email = seekerInfo.data().EMAIL;
+    sendEmail(
+      email,
+      "Request Approved",
+      `Dear user,\n\nWe are happy to inform that your request for ${req.body.nameValuePairs.UNITS} units of ${req.body.nameValuePairs.BLOOD_GROUP} has been verified by ${req.body.nameValuePairs.ADMIN}.\n\nWishing a speedy recovery.\n\nRegards,\nAsrik`
+    );
     scheduleCooldown(req.body);
   } catch (err) {
     throw err;
@@ -147,6 +155,13 @@ const sendNotificationForRequestRejection = async function (req, res) {
     let snapshot = await firestore.collection("TOKENS").doc(uid).get();
     const token = snapshot.data().TOKEN;
     await sendRejectionMessage(token, req.body);
+    const seekerInfo = await firestore.collection("USERS").doc(uid).get();
+    const email = seekerInfo.data().EMAIL;
+    sendEmail(
+      email,
+      "Request Rejected",
+      `Dear user,\n\nWe are sorry to inform that your request for ${req.body.nameValuePairs.UNITS} units of ${req.body.nameValuePairs.BLOOD_GROUP} has been rejected by ${req.body.nameValuePairs.ADMIN}.\n\nWishing a speedy recovery.\n\nRegards,\nAsrik`
+    );
   } catch (err) {
     throw err;
   }
@@ -247,6 +262,31 @@ const sendNewMessageMessage = async function (token, body) {
   } catch (err) {
     throw err;
   }
+};
+
+const sendEmail = function (email, subject, message) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "asrikcontact@gmail.com",
+      pass: process.env.PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: "asrikcontact@gmail.com",
+    to: email,
+    subject: subject,
+    text: message,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
 };
 
 module.exports.sendNotificationToAdmin = sendNotificationToAdmin;
