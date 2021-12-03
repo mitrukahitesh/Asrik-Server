@@ -7,6 +7,7 @@ const {
   sendBloodCampNotification,
   sendNewMessageNotification,
 } = require("./src/firebase");
+const getBotReply = require("./src/bot");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -75,6 +76,10 @@ app.post("/new_message/:receiver", async (req, res) => {
     res.send("Error");
     console.log(err.message);
   }
+});
+
+app.get("/bot/:message", async (req, res) => {
+  getBotReply(req, res);
 });
 
 // Listen on port
