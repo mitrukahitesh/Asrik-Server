@@ -267,6 +267,8 @@ const sendNewMessageMessage = async function (token, body) {
 const sendEmail = function (email, subject, message) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
+    port: 465,
+    secure: true,
     host: "smtp.gmail.com",
     auth: {
       user: "asrikcontact@gmail.com",
